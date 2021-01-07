@@ -1,15 +1,25 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 
 
 
 const NewForm = (props)=>{
-// TODO fix state and form submit
-    const [tempState, setTempState]= useState({
+// TODO get state from backend and form submit
+    const [tempState, setTempState]= useState([{
         average_high_f: 0,
         average_low_f: 0,
         month: '', 
         location_id: 1
-    })
+    }])
+
+    async function getTempData(){
+        const data = await fetch('/temperatures').then(res => res.json())
+        setTempState(data)
+    }
+
+    useEffect(()=>{
+        getTempData()
+        console.log('effect done')
+    }, [])
 
     function handleTempChange(e){
         setTempState(prevState =>({
@@ -21,7 +31,7 @@ const NewForm = (props)=>{
     function submitTemp(e, formInputs){
         e.preventDefault()
         console.log({tempState})
-        fetch('/temperatures', {
+        return fetch('/temperatures', {
             body: JSON.stringify(formInputs),
             method: 'POST', 
             headers: {
@@ -41,6 +51,7 @@ const NewForm = (props)=>{
             <input placeholder="average high" type="number" name="average_high_f" value={tempState.average_high_f} onChange={handleTempChange} required/>
             <input placeholder="average low" type="number" name="average_low_f" value={tempState.average_low_f} onChange={handleTempChange} required/>
             <input placeholder="month" type="text" name="month" value={tempState.month} onChange={handleTempChange} required/>
+            <input placeholder='1' type='number' name='location_id' value={tempState.location_id} onChange={handleTempChange} required />
             <button type='submit'>Add</button>
         </form>
     )
